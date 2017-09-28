@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-# ID: zhihuQA.py
+# ID: zhihu_question_spider.py
 # By: github.com/Shaw-lib
 # At: 2017/7/17
 
@@ -23,7 +23,7 @@ requests.packages.urllib3.disable_warnings()
 内容
 创建时间(原文链接)
 """
-print("#"*10+"GO"+"#"*10)
+print("#" * 10 + "GO" + "#" * 10)
 
 os.system("python login.py")
 
@@ -34,6 +34,7 @@ try:
     requests = requests.Session()
 except:
     import requests
+
     requests = requests.Session()
 
 requests.cookies = http.cookiejar.LWPCookieJar('cookies')
@@ -60,7 +61,7 @@ headers = {
     'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
     'Accept - Encoding': "gzip, deflate, br",
     'Accept - Language': "zh - CN, zh;q=0.8"
-    }
+}
 
 # 伪页数变量
 start_num = int(A_num / 20)
@@ -71,7 +72,8 @@ answers_data = (x for x in answers_data)
 
 for page_now in range(start_num + 1):
     # 通过chrome开发者工具找到的json数据接口，简化保留需要的数据。
-    QA_url = "https://www.zhihu.com/api/v4/questions/{}/answers?&sort_by=default&include=data[*].content,voteup_count,created_time&offset={}&limit=20".format(Q_id, page_now * 20)
+    QA_url = "https://www.zhihu.com/api/v4/questions/{}/answers?&sort_by=default&include=data[*].content,voteup_count,created_time&offset={}&limit=20".format(
+        Q_id, page_now * 20)
 
     res = requests.get(QA_url, headers=headers, verify=False)
     data = json.loads(res.text)
@@ -85,26 +87,25 @@ for page_now in range(start_num + 1):
     # 将20个dict元素转化为生成器。
     new_answers_data = (y for y in data['data'])
     # 合并生成器
-    answers_data = chain(answers_data, new_answers_data) # answers_data这时是一个包含我们需要的所有答案的生成器。
-
+    answers_data = chain(answers_data, new_answers_data)  # answers_data这时是一个包含我们需要的所有答案的生成器。
 
 # 计数器
 n = 0
 # 逐个输出答案并保存。
 for data in answers_data:
-    title        = data['question']['title']
+    title = data['question']['title']
     question_url = "http://www.zhihu.com/question/{}".format(data['question']['id'])
-    author       = data['author']['name']
-    author_url   = "http://www.zhihu.com/people/{}".format(data['author']['url_token'])
-    upvote       = str(data['voteup_count'])+"个赞"
-    content      = '\n\n' + html2text.html2text(data['content'])  # this is html
-    answer_url   = '\n\n原文链接：'+question_url+'/{}'.format(data['id'])
-    answer_time  = '\n\n发布于'+time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(data['updated_time']))
+    author = data['author']['name']
+    author_url = "http://www.zhihu.com/people/{}".format(data['author']['url_token'])
+    upvote = str(data['voteup_count']) + "个赞"
+    content = '\n\n' + html2text.html2text(data['content'])  # this is html
+    answer_url = '\n\n原文链接：' + question_url + '/{}'.format(data['id'])
+    answer_time = '\n\n发布于' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(data['updated_time']))
 
-    question     = "[{}]({})".format(title, question_url)
-    author_info  ="作者：[{}]({})".format(author, author_url)
+    question = "[{}]({})".format(title, question_url)
+    author_info = "作者：[{}]({})".format(author, author_url)
 
-    with open("{}--前{}个回答.md".format(title,A_num), 'a', encoding="utf8") as f:
+    with open("{}--前{}个回答.md".format(title, A_num), 'w+', encoding="utf8") as f:
         print(question,
               '\n----------\n',
               author_info, upvote,
@@ -113,15 +114,21 @@ for data in answers_data:
               answer_url,
               '\n\n',
               file=f)
+
+    with open("{}--内容.md".format(title), 'w+', encoding="utf-8") as f:
+        print('#### 孙雅坤小朋友 ####',
+              content,
+              file=f)
+
     n += 1
-    percent = round(n / A_num, 2)*100
+
+    percent = round(n / A_num, 2) * 100
     print("正在抓取第{}个答案..{}%".format(n, percent))
     if n >= A_num:
         break
     else:
         continue
 
-
 end = time.time()
 cost = round(end - start)
-print('抓取了{}个答案，共计{}秒。'.format(A_num,cost))
+print('抓取了{}个答案，共计{}秒。'.format(A_num, cost))
