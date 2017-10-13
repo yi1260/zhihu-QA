@@ -32,19 +32,32 @@ class Answer:
 
 
 def is_title(line):
-  return (re.match(r"[0-9]*\.", line) is not None) or \
-         (re.match(r"[0-9]*\\\.", line) is not None) or \
-         (re.match(r"\*\*[0-9]*", line) is not None) or \
-         (line.startswith('**') and line.endswith('**'))
+  return (re.match(r"[0-9]+ ", line) is not None) or \
+         (re.match(r"[0-9]+\.", line) is not None) or \
+         (re.match(r"[0-9]+\\\.", line) is not None) or \
+         (re.match(r"\*\*[0-9]+", line) is not None) or \
+         (re.match(r"^\*\*.*\*\*$", line) is not None)
 
 
-def get_answer(input):
-  with open(input, 'r', encoding='utf-8') as f:
+def get_answer(inputfile):
+  with open(inputfile, 'r', encoding='utf-8') as f:
     content = f.read()
     for i, v in enumerate(content.split('#### 孙雅坤小朋友 ####')):
+      print("@@@@@@@@@@@@@@ Answer {} @@@@@@@@@@@@@@@".format(i))
+      describe_line = []
+      last_title = ''
       for j, vv in enumerate(v.strip().split('\n')):
-        if is_title(vv):
-          print("{}: {}".format(vv.strip(), len(vv.strip())))
+        # if is_title(vv):
+        #   print(vv.strip())
+        if is_title(vv) and last_title == '':
+          print("@@@@@ Item title: {} @@@@@".format(vv.strip()))
+          last_title = vv
+        elif is_title(vv) and last_title != '':
+          print('\n'.join(describe_line))
+          describe_line.clear()
+          print("@@@@@ Item title: {} @@@@@".format(vv.strip()))
+        elif last_title != '':
+          describe_line.append(vv)
 
 
 if __name__ == "__main__":

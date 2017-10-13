@@ -105,7 +105,7 @@ for data in answers_data:
     question = "[{}]({})".format(title, question_url)
     author_info = "作者：[{}]({})".format(author, author_url)
 
-    with open("{}--前{}个回答.md".format(title, A_num), 'w+', encoding="utf8") as f:
+    with open("{}--前{}个回答.md".format(title, A_num), 'a', encoding="utf8") as f:
         print(question,
               '\n----------\n',
               author_info, upvote,
@@ -115,7 +115,7 @@ for data in answers_data:
               '\n\n',
               file=f)
 
-    with open("{}--内容.md".format(title), 'w+', encoding="utf-8") as f:
+    with open("{}--内容.md".format(title), 'a', encoding="utf-8") as f:
         print('#### 孙雅坤小朋友 ####',
               content,
               file=f)
