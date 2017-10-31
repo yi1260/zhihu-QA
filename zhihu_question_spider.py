@@ -98,6 +98,7 @@ for data in answers_data:
     author = data['author']['name']
     author_url = "http://www.zhihu.com/people/{}".format(data['author']['url_token'])
     upvote = str(data['voteup_count']) + "个赞"
+    n_upvote = data['voteup_count']
     content = '\n\n' + html2text.html2text(data['content'])  # this is html
     answer_url = '\n\n原文链接：' + question_url + '/{}'.format(data['id'])
     answer_time = '\n\n发布于' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(data['updated_time']))
@@ -116,7 +117,8 @@ for data in answers_data:
               file=f)
 
     with open("{}--内容.md".format(title), 'a', encoding="utf-8") as f:
-        print('#### 孙雅坤小朋友 ####',
+        print('#### 孙雅坤小朋友 ####\n',
+              n_upvote,
               content,
               file=f)
 
